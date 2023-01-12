@@ -17,6 +17,7 @@ const int h = 24;     // height
 
 Adafruit_MLX90640 mlx;
 float frame[32*24]; // buffer for full frame of temperatures
+char name[] = "/IR_0000.bmp"; 
 
 #define TA_SHIFT 8 //Default shift for MLX90640 in open air
 
@@ -182,8 +183,6 @@ void loop() {
 
     PCF8574::DigitalInput val = pcf8574.digitalReadAll();
     if (val.B_START == LOW) {
-      tft.setCursor(50, 220);
-      tft.print("Button Pressed");
       save_image(SD_MMC);
     } else {
       tft.fillRect(50, 220, 150, 240, tft.color565(0, 0, 0));
@@ -281,13 +280,20 @@ void save_image(fs::FS &fs)
 {
   byte VH, VL;
   int i, j = 0;
+  File file;
   
-  File file = fs.open("/image.bmp", FILE_WRITE);
-    if (!file)
-    {
-        Serial.println("Failed to open file for writing");
-        return;
+  for (int i=0; i<10000; i++) {
+    name[4] = (i/1000)%10 + '0';    // thousands place
+    name[5] = (i/100)%10 + '0';     // hundreds
+    name[6] = (i/10)%10 + '0';      // tens
+    name[7] = i%10 + '0';           // ones
+    
+    if (!fs.exists(name)) {
+      break;
     }
+  }
+  
+file = fs.open(name, FILE_WRITE);
 
     unsigned char bmFlHdr[14] = {
     'B', 'M', 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 0
@@ -348,4 +354,7 @@ uint16_t rgb = 0;
   }
   //Close the file
   file.close();
+
+  tft.setCursor(50, 220);
+  tft.print(name);
 }
