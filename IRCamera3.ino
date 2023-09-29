@@ -12,8 +12,8 @@ PCF8574 pcf8574(PCF_ADD);
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(LCD_CS, LCD_DC, LCD_MOSI, LCD_SCK, LCD_RST);
 
-const int w = 32;     // image width in pixels
-const int h = 24;     // height
+const int w = 128;     // image width in pixels
+const int h = 96;     // height
 
 Adafruit_MLX90640 mlx;
 float frame[32*24]; // buffer for full frame of temperatures
@@ -327,12 +327,13 @@ file = fs.open(name, FILE_WRITE);
   file.write(bmFlHdr, sizeof(bmFlHdr));
   file.write(bmInHdr, sizeof(bmInHdr));
 
-  for (i = h; i > 0; i--) {
+  for (i = 0; i < h; i++) {
     for (j = 0; j < w; j++) {
 
       // uint16_t rgb = readPixA(j,i); get pix color in rgb565 format
+      
 
-      getColour(frame[i*32 + j]);
+      getColour(frame[(i/4)*32 + (j/4)]);
 
 uint16_t rgb = 0;
   rgb = R_colour >> 3; // red: use 5 highest bits (discard three LSB)
